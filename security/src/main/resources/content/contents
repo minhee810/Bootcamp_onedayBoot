@@ -1,0 +1,38 @@
+user.entity.java
+
+userDatail 인터페이스를 구현
+이 엔티티는 앞으로 토큰을 생성할 때 토큰 정보로 사용될 정보와 권한을 갖게 된다.
+
+
+
+
+UserDatail 인터페이스
+-> import org.springframework.security.core.userdatails.UserDetails;
+UserDatailsServiece 를 통해 입력된 로그인 정보를 가지고
+데이터 베이스에서 사용자의 정보를 가져오는 역할을 수행.
+Spring Security에서 제공하는 개념.
+username : 각 사용자를 구분할 수 있는 ID를 의미
+
+UserRepository.java : 엔티티를 조회하는 기능을 구현.
+= > data.repository.UserRepository
+JpaRepository 를 상속 받고, User엔티티에 대한 설정 추가.
+getByUid() : 현재 id값은 인덱스 값이기 때문에  id값을 토큰 생성 정보로 사용하기 위한 메서드
+
+UserDetailsServiceImpl.java : User 엔티티의 id를 가져오는 서비스
+=> data.service.impl.UserDetailsServiceImpl
+UserDetailsService 인터페이스 구현.
+
+
+createToken() : JWT 토큰 생성 메서드
+Claim claims = ~~
+ JWT 토큰의 내용에 값을 넣기 위한 Claims 객체 생성
+
+
+validateToken() : JWT 토큰의 유효 만료일을 체크하는 메서드,
+    토큰을 전달받아 Claim의 유효기간을 체크하고, boolean 값을 리턴하는 메서드
+
+doFilterInternal() :
+JwtTokenProvider를 통해 servletRequest 에서 토큰을 추출하고
+유효성을 검사하여 Authentication 객체를 생성하여
+SecurityContextHolder에 추가하는 메서드
+
