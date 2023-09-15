@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Home</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+<!--&lt;!&ndash;utext일 경우 컴파일 후 출력이 됨. text는 문자열 그대로 출력 됨. &ndash;&gt;
+<p th:utext="${msg}">greeting</p>-->
+
+<h1>자바빈즈 프로퍼티 값이 true 체크</h1>
+
+<th:block th:if="${member.foreigner}">
+    <p>member.foreigner == true</p>
+</th:block>
+
+</body>
+</html>

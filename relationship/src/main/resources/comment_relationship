@@ -1,0 +1,155 @@
+
+연관관계 매핑 종류와 방향
+
+종류
+    1. One To One : 일대일 (1:1)
+        @One To One, @JoinColumn
+        단방향 : 한쪽만 @One To One
+        양방향 : @One To One 단, Owner를 지정 -> @One To One(mappedBy= "연관관계 필드명")
+
+    2. One To Many : 일대다(1:N) : 공급업체(한개) -> 한 가게에 납품하는 상품(여러개)
+    @One To One,  @JoinColumn
+    단방향만
+
+    3. Many To One : 다대일 (N:1) : 상품 여러개 -> 공급업체 한개
+    @Many To One,  @JoinColumn
+    단방향 / 양방향
+
+    4. Many To Many : 다대다 (N:N) : 일반 실무에서는 많이 사용되지 않는 개념
+    @Many To Many
+    한 종류의 상품이 여러 생상 업체를 통해 생산될 수 있고,
+    생산 업체 한 곳이 여러상품을 생상할 수도 있다.
+    각 엔티티에서 서로를 List로 가지는 구조
+    -> 교차 엔티티를 생성해서 N:N, 1:N, N:1 관계로 해소
+    별도의 @JoinColumn을 설정하지 않는다.
+
+    @One To One : left outer join(optional=false) / inner outer join(optional=false)
+    교집합으로 조인하고 싶으면 optional값을 true로 변경
+
+     @JoinColumn(name="컬럼명")
+        name : 매핑할 외래 키 이름
+        referencedColumnName : 외래키가 참조할 상대 테이블의 컬럼명을 지정.
+        foreignKey : 외래키를 생성하면서 지정할 제약조건을 설정.
+            unique, nullable, insertable, updatable
+
+     # lombok  사용시 ... #
+     @ToString(callSuper=true)
+        callSuper : 클래스가 다른 클래스를 상속하고 있을 때.
+                    부모 클래스의 toString() 출력을 포함하려는 경우, true
+        exclude : 제외해야하는 필드명을 지정
+        includeFieldNames : 기본값 True (생략가능), ex) [필드명 : ~~~] 라고 출력되는데 이걸 값만 뽑고 싶을 때 설정해주는 것
+                           필드명 포함여부, 필드명을 제외시킬 경우 false
+
+     방향
+        단방향 : 두 엔티티의 관계에서 한쪽의 엔티티만 참조하는 형식
+        양방향 : 두 엔티티의 관계에서 각 엔티티가 서로의 엔티티를 참조하는 형식
+
+        데이터베이스와 일치시키기 위해 양방향으로 설정해도 무관하지만.
+        비즈니스 로직의 관점에서 보았을 때, 단방향 관계만 설정해도 대부분 해결된다.
+
+     * 중요한 점 :
+     1. 어떤 엔티티를 중심으로 연관 엔티티를 보느냐에 따라 연관관계 상태가 달라진다.
+     2. 연관관계가 설정되면 한 테이블에서 다른 테이블의 기본값(primary Key)을 외래 키(Foreign Key)로 갖게 된다.
+     3. 일반적으로 외래키를 가진 테이블이 그 관계의 주인(Owner)이 되고, Owner는 Foreign key를 사용할 수 있으나,
+        상대 엔티티는 읽는 작업만 수행할 수 있다.
+     4. ToString을 사용할 때 순환참조가 발생 : StackOverFlowError발생
+     => @ToString.Exclude : ToString에서 제외.
+
+     * 지연로딩(fetch="Lazy")과 즉시로딩(fetch="FatchType.EAGER") : JPA에서만...
+     @OneToOne, @OneToMany, @ManyToOne, @ManyToMany의 속성 중
+     fetch="Lazy" 로 기본 설정 되어있음.
+
+     JPA에서 지연로딩(Lazy Loading)과 자연로딩(Eager Loading)은 중요한 개념
+     1. 엔티티라는 객체의 개념으로 데이터 베이스를 구현했기 때문에
+        연관관계를 가진 각 엔티티 클래스에서 연관관계가 있는 객체들이 필드에 존재하게 된다.
+
+     2. 연관관계와 상관 없이 즉각 해당 엔티티의 값만 조회하고 싶거나,
+        연관관계를 가진 테이블의 기본값도 조회하고 싶을 경우 등...
+        여러가지 조건을 만족하기 위해 등장한 개념
+
+
+영속성 전이
+    casecade는 영속성이 전이된다는 의미
+    casecade 옵션이 붙은 쪽이 연관된 다른 엔티티를 관리
+    특정 엔티티가 다른 엔티티와 관련이 있을때, 특정 엔티티를 영속화하면 관련된 다른 엔티티도 영속화되는 것.
+
+    예) 부모와 자식 클래스가 있다고 가정,
+    예를 들어 부모 엔티티를 영속화하면, 자식 엔티티도 바로 영속화 하고 싶을 때 사용
+    또, 자식 엔티티를 영속화할때 부모 엔티티도 바로 영속화 할때 사용
+
+    영속성 전이의 사용방법
+         @OneToMany, @ManyToOne의 어노테이션의 casecade옵션을 설정하면 가능.
+         casecade옵션에 따라 다양한 형태로 동작.
+         @ManyToOne의(casecade = CasecadeType.ALL)
+         @OneToMany(mappedBy = "product", casecade = CascadeType.ALL)
+
+    영속성 전이를 사용하는 경우 : 1:N, N:1
+        영속성 전이는 기본적으로 동일한 생명주기를 가질때 사용을 고려.
+        대표적인 것은 엔티티 소유자가 하나일때만 쓰는 것이 권장.
+        예를들어 Product를 Provider만 가진다고 가정하면, 영속성 전이를 사용을 고려.
+        그렇지만 Product를 Provider뿐만 아니라 Producer도 가진다면 사용을 하지 않는 것이 좋다.
+
+    고아 객체 : 부모의 참조에서 삭제된 객체
+    예 ) 부모 객체는 자식들이라는 필드 Collection을 가지고 있고,
+        여기에 자식1, 자식2가 있다고 가정.
+        여기서 자식 1을 자식들 필드에서 삭제하면, 자식 1은 부모 객체와 참조가 끊어진다.
+        이를 고아 객체라고 한다.
+
+        @OneToMany(mappedBy = "parent", cascade=CascadeType.PERSIST, orphanRemoval = true)
+        JPA에서는 한 객체가 고아 객체가 되었을 때, 자동으로 삭제가 될지 안 될지를 지원하는 모드를 지원.
+        이 모드를 켜게되면 고아 객체가 되는 순간 Delete쿼리가 나가며,
+        DB에서 삭제가 되는 것을 확인할 수 있다.
+
+        고아 객체는 orphanRemoval true / false값을 주어 선택할 수 있다.
+
+    고아객체 자동삭제 관련 정리
+        고아 객체의 자동 삭제는 orphanRemoval에서 설정할 수 있다.
+        참조가 제거된 엔티티는 다른 곳에서 참조하지 않는 고아 객체로 보고 삭제하는 기능
+        참조하는 곳이 하나일 때만 사용해야 함.
+        @OneToMany, @OneToOne에서만 사용 가능하다.
+
+    중요사항 :
+        참고할 사항은 부모를 제거하면 일반젇으로 자식은 전부 고아가 된다는 것.
+        따라서 orphanRemoval = true로 설정하고
+        Parent 객체를 삭제하면 그와 관련된 모든 Child객체도 함께 제거된다.
+
+
+    참고 :
+    DDD (Domain Driven Design) : 도메인 중심으로 설계하는 디자인 방법론
+    Domain : 소프트웨어로 해결하고자 하는 문제 영역,
+             애플리케이션 내 로직들이 관여하는 정보와 활동의 영역
+
+             예 ) 쿠팡이나 11번가와 같은 오픈 마켓을 구현하려면 아래 기능이 필요하다.
+             회원가입, 회원탈퇴 기능 -> 회원영역
+             장바구니에 담긴 전체 물건을 주문하는 기능 -> 주문 / 정산 / 결제 영역
+             결제할 때 혜택이나 쿠폰을 적용하는 기능 -> 결제 / 쿠폰영역
+             회원, 주문. 정산, 쿠폰 등등이 도메인들이다.
+    Domain Layer : 애플리케이션 아키텍퍼를 설계할 때는 전형적인 4가지 영역으로 나뉘다.
+            표현(Presentaion Layer),
+            응용(Application Layer),
+            도메인(Domain Layer),
+            인프라스트럭쳐(Infrastructure Layer) -> API관련
+
+
+    도메인 모델의 각 영역
+        Presentaion Layer : 표현영역. UI. 즉, 사용자의 요청을 받아 응용 영역에 전달하고,
+            응용영역의 처리 결과를 다시 사용자에게 보여주는 역할을 한다.
+            (Controller영역, DispatcherServlet에게 요청과 응답을 전달하는 역할을 한다.)
+
+        Application Layer : 응용영역. 시스템이 사용자에게 제공해야 할 기능을 구현한다. (service영역)
+
+        Domain Layer : 도메인 영역, 도메인 모델을 구현한다. (이름, 주소, 상품 등)
+
+        InfraStructure Layer : 구현 기술에 대한 것을 다룬다.
+            (외부 API, 데이터베이스 , 외부 라이브러리 사용 등)
+
+        DDD와 관련된 것은 도메인 영역이고, 도메인 영역은 도메인 모델을 구현.
+             주문 도메인의 경우, '배송지 변경', '결제완료', '주문금액 계산' 등의 핵심 로직이 필요한데.
+             이러한 로직을 도메인 모델에서 구현,
+        반면 인프라스트럭쳐 영역은 논리적인 개념을 표현하기 보다는 실제 구현을 다룬다.
+
+
+
+
+
+

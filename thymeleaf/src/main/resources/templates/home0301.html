@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Home</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+<!--<h1>
+    table 태그에 th:object 속성값을 설정하고
+내부 포함된 태그에 선택 표현식을 사용
+</h1>
+<table th:object="${member}">
+
+    <tr><td>${userId}</td><td th:text="*{userId}">userId </td> </tr>
+    <tr><td>${password}</td><td th:text="*{password}">password </td> </tr>
+    <tr><td>${userName}</td><td th:text="*{userName}">userName </td> </tr>
+    <tr><td>${email}</td><td th:text="*{email}">email </td> </tr>
+    <tr><td>${dateOfBirth}</td><td th:text="*{dateOfBirth}">dateOfBirth </td> </tr>
+
+    </tr>
+</table>-->
+
+<!--<h1>배열 타입의 자바 빈즈 프로퍼티 값을 반복하여 표시</h1>
+<th:block th:each="hobby : ${member.hobbyArray}">
+    <p th:text="${hobby}">hobby</p>
+</th:block>-->
+
+<h1>인라인 표현이 텍스트 형태로 표시</h1>
+
+<p th:text="|Hello, ${username}!|">greeting</p>
+<p> Hello, <span th:text="${username}">name</span>!</p>
+<p> Hello, [[(${username}]]! </p>             <!--inline 비활성화-->
+
+</body>
+</html>

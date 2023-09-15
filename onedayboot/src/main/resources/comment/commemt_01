@@ -1,0 +1,29 @@
+5. 도서 입력 화면 : 완성
+
+    도서 입력 화면 개요 :  /book/create
+    책 제목 / 가격 입력 받는 화면 구성
+
+    도서 컨트롤러 클래스 생성 : controller.BookController
+        요청 / 응답처리
+        @Controller
+
+    도서 생성 화면 컨트롤러 메소드 작성
+        @GetMapping(/book/create)
+        create(){
+        return "create";
+        templates => books => create.html
+        }
+
+    도서 생성 화면 뷰 생성 : create.html / thymeleaf
+        <!DOCTYPE html>
+        <html xmlns:th="www.thymeleaf.org">
+
+    도서 생성 화면 뷰 내용 작성
+        <form method="POST">
+            <input name = "title" ~~~/>
+            <input name = "price" ~~~/>
+        </form>
+        name은 추후 Entity 및 Dto의 멤버(속성, 필드) 변수명으로 설정
+
+    도서 입력 화면 확인
+        http://localhost:8090/book/create

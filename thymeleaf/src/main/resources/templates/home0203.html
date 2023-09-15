@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Home</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h1> 중첩된 자바빈즈 프로퍼티 값을 가져온다.. </h1>
+<table>
+    <tr><td>${member.address.postCode}</td><td th:text="${member.address.postCode}">postCode </td> </tr>
+    <tr><td>${member.address.location}</td><td th:text="${member.address.location}">location </td> </tr>
+</table>
+</body>
+</html>

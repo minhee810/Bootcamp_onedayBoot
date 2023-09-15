@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Home</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+<!--&lt;!&ndash;utext일 경우 컴파일 후 출력이 됨. text는 문자열 그대로 출력 됨. &ndash;&gt;
+<p th:utext="${msg}">greeting</p>-->
+
+<!--<h1>자바빈즈 프로퍼티 값이 null인지 체크</h1>
+
+<th:block th:if="${member.hobbyArray == null}">
+    <p>member.hobbyArray == null</p>
+</th:block>
+
+<th:block th:if="${member.hobbyArray eq null}">
+    <p>member.hobbyArray eq null</p>
+</th:block>-->
+<!--
+-->
+<h1>스프링 MVC모델에 저장된 값을 인라인 표기법을 사용하여 표기</h1>
+<p th:text="|Hello, ${username}!|">greeting</p>
+<p>Hello, <span th:text="${username}">name</span> !</p>
+<p>Hello, [[${username}]]!</p>
+
+
+<!--<h2>타입 리프 처리 후렏 템플릿에 남아있다. </h2>
+&lt;!&ndash;/*user info follows*/  이렇게 감싸 놓으면 페이지 소스코드에서도 주석이 사라짐. &ndash;&gt;
+<h1 th:text="${msg}">greeting</h1>-->
+</body>
+</html>

@@ -1,0 +1,15 @@
+8. 도서 수정 화면
+    도서 수정 화면 개요
+
+    도서 수정 화면 응답 DTO
+    fromBook() - entity객체를 가져와 값을 dto에 담는 과정
+    bookFactory() - 정보를 담은 객체를 만들어주는 공장
+
+    도서 서비스 클래스에 수정 메소드 추가
+         public Integer edit(BookEditDTO bookEditDTO) {}
+         return book.getBookId(); - 다시 번호를 내보내서 수정 정보 띄워주기 위해
+
+    도서 컨트롤러에 `@ExceptionHandler` 추가
+    도서 수정 화면 컨트롤러 메소드 추가
+    도서 수정 화면 뷰 작성
+    도서 수정 화면 확인

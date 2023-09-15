@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Home</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+
+
+<h1>자바 빈즈 요소를 가진 컬렉션 리스트 타입의 자바 빈즈 프로퍼티 값을 반복하여 표시 </h1>
+<th:block th:each="card: ${member.cardList}">
+    <span th:text="${card.no}">card.no</span>
+    <span th:text="${card.validMonth}">card.validMonth</span>
+    </br>
+</th:block>
+
+<th:block th:each="card : ${member.cardList}">
+    [[${card.no}]]
+    [[${card.validMonth}]]
+    </br>
+</th:block>
+</body>
+</html>

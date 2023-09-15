@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf/org">
+<head>
+    <meta charset="UTF-8">
+    <title>글 목록</title>
+</head>
+<body>
+<h1>어서오세용~ 글 목록</h1>
+<table th:each="${bookReadResponseDTO}">
+
+        <th>No</th>
+        <th>책 제목</th>
+        <th>가격</th>
+    <tr>
+        <td><span th:text="${bookReadResponseDTO.bookId}" ></span></td>
+        <td><span th:text="${bookReadResponseDTO.title}" ></span></td>
+        <td><span th:text="${#numbers.formatInteger(bookReadResponseDTO.price, 3,'COMMA')}" ></span></td>
+    </tr>
+
+</table>
+
+</body>
+</html>

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Home</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h1> 자바 빈즈 프로퍼티값을 가져온다. </h1>
+<table>
+    <tr><td>${member.userId}</td><td th:text="${member.userId}">userId </td> </tr>
+    <tr><td>${member.password}</td><td th:text="${member.password}">password </td> </tr>
+    <tr><td>${member.userName}</td><td th:text="${member.userName}">userName </td> </tr>
+    <tr><td>${member.email}</td><td th:text="${member.email}">email </td> </tr>
+    <tr><td>${member.dateOfBirth}</td><td th:text="${member.dateOfBirth}">dateOfBirth </td> </tr>
+    </tr>
+</table>
+</body>
+</html>

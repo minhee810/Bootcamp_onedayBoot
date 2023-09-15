@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Home</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+<!--<h1>메시지의 키 값을 사용하여 메시지 본문을 가져온다. </h1>
+<p th:text="#{welcome.message}">greeting</p>-->
+
+<!--<h1>th:switch 속성 값을 비교하여 일치하는 값이 없으면 th:case="*" 의 HTML요소를 표시</h1>
+<h1>th:switch 속성 값을 비교하여 일치하는 값을 가진 th:case의 HTML요소를 표시</h1>
+<div th:switch="${member.gender}">
+    <p th:case="M"> male</p>
+    <p th:case="F"> female</p>
+    <p th:case="*"> others</p>
+</div>-->
+
+<h1>비활성화가 된 상태에서는 인라인 표기법 형태인 [[...]]로 그대로 표시된다.</h1>
+<p>Hello, [[${username}]]!</p>  <!--text 속성-->
+<p>Hello, [(${username})]!</p>  <!--utext속성-->
+<p th:inline="none"> Hello, [[(${username}]]! </p>             <!--inline 비활성화-->
+
+</body>
+</html>

@@ -1,0 +1,236 @@
+7. 도서 상세 화면
+    도서 상세 화면 개요
+
+    책입력 기능 만들기에서 http://localhost:8090/book/read/{bookId} 주소는
+    404 오류 페이지를 출력
+    404 (Page Not Found) 화면을 해결하기 위한 책 상세정보를 보여주기 위한 화면을 생성.
+
+    도서 상세 화면 응답 DTO : BookReadResponseDTO.java
+    굳이 엔티티를 직접 사용하지 않고 응답 객체를 따로 정의하는 이유
+    실제 HTTP응답이 테이블 하나만 대상으로 하는 경우는 겅의 없기 때문.
+
+    많은 경우 여러 엔티티에서 필요한 필드만 뽑아내서 조합시켜서 응답하기 떄문
+    응답별로 엔티티 집합을 묶어주는 응답 DTO가 필요
+    => com.springboot.book.dto > BookReadResponseDTO.java
+
+         @NoArgsConstructor 어노테이션은 롬복의 어노테이션으로 매개변수가 없는 생성자를 자동으로 생성.
+
+         @Getter 어노테이션은
+            BookReadReoponseDTO 객체를 타임 리프에서 사용할 때
+            자바빈즈의 getter규칙에 따라 데이터를 가져오기 때문에 필요!!
+
+            ~~~~ fromBook(Book book) 메서드
+            Book 엔티티를 매개변수로 받아서 내부의 값을 채우는 역할을 담당.
+            롬복을 이용해서 서비스 레이어에서 값을 채워넣을 수도 있고, 엔티티에서 응답 객체로 바꿀수도 있지만
+            응답 객체에 값을 채우는 메서드를 넣은 이유는 응답객체는 여러 엔티티의 값을 모으는 집합 객체이기 때문
+
+         만약 추후 비즈니스로직이 변경되어
+         책 정보를 보여주는 화면에서 책 정보외에 리뷰정보를 같이 보여줘야 한다면
+         BookReadResponseDTO객체에 fromReview 메소드를 추가하면 된다.
+         이런 방법으로 정보가 모이는 곳에 데이터를 설정하는 로직을 모아두면
+         나중에 데이터 설정방법을 찾아볼 때 편리!!
+
+         ~~~BookFactory(Book book) 메서드
+         BookFactory 정적(static) 메서드는 fromBook메서드를 감싸는 정적 메서드.
+
+         사용할때마다 객체를 만들고, 값을 설정하기 위해 fromBook메소드를 호출하는 일을 줄여준다.
+         => 이와 같이 정적 메서드로 객체를 생성하는 방법을 팩토리 패턴이라고 한다.
+
+         만약에 BookReadResponseDTO 객체에서
+         book 정보 외에 Review 정보고 받아들여야 한다면,
+         fromReview 메섣드를 만들고 BookFactory 메서드를 오버로딩해서 값을 채우는 것도 가능!
+
+         public BookReadResponseDTO fromReview(Review review) {~~~
+         public static BookReadResponseDTO BookFactory(Review review){~~
+
+         와 같이 코드를 구현하면
+         책과 리뷰 정보를 동시에 설정해야할 때 아래 코드처럼 작성할 수 잇게 된다.
+         return BookReadResonseDYp dlkfgjjgdf
+
+
+    도서 엔티티 클래스 리뷰 : entity.Book.javsa내부
+    @NoArgsConstructor 눈 JPA에서 엔티티에 값을 채울때 필요.
+
+    JPA는 엔티티의 인스턴스를 생성하고, 데이터베이스에있는 값을 읽어서
+    setter를 통해 인스턴스의 멤버변수 값을 채워나간다.
+    그러므로 JPA가 엔티티의 인스턴스를 생성할 때는 매개변수 없는 생성자가 있어야 한다!!!
+
+    @AllArgsConstructor 어노테이션은
+    모든 멤버변수를 매개변수로 설정할 수 있는 생성자를 자동으로 만들어주는 롬복의 어노테이션
+    public book(Integer bookId, String title, Integer price, LocalDateTime insertDateTime){
+
+            this.bookId = bookId();
+            this.title = title();
+            this.price = price();
+            this.insertDateTime = insertDateTime();
+
+
+    @Builder
+       @AllArgsConstructor 어노테이션은  @Builder 에서 사용해야하기 떄문에 설정해야한다.
+       @Builder 어노테이션은 클래스 내부에 빌더 클래스를 만들어내는데
+       빌더 클래스는 내부에 값을 가지고 잇다가
+       한번에 외부 클래스의 생성자를 통해서 값을 설정하기 때문
+    @AllArgsConstructor 어노테이션이 없는데도
+    @Builder 어노테이션이 정상적으로 작동허눈 이유는
+       롬복이 자동으로  @AllArgsConstructor을 붙여주기 때문이다.
+       하지만 만약 다른 생서아가 있다면 롬복은 @AllArgsConstructor을 자동으로 붙이지 않는다.
+
+       하지만 JPA를 위해서  @NoArgsConstructor를 사용했도
+       이 때 생성자가 생겼으므로
+       @Builder 어노테이션은 자동으로 NoArgsConstructor 어노테이션을 붙여주지 않는다.
+       따라서 수동으로 붙여주어야 한다.
+
+
+    도서 상세 화면 응답 DTO
+    도서 엔티티 클래스 수정
+    도서 서비스 클래스에 읽기 메소드 추가
+    도서 컨트롤러 클래스에 읽기 메소드 추가 : BookService.java => ~~read(Integer bookId) 메서드 리뷰
+
+    매개변수는 bookId 는 책의 고유 번호(FK)로 책 정보를 불러와야 하므로
+
+    bookRepository 는 책 입력 기능을 만들 때 의존성을 주입 받은JpaRepository 인터페이스
+
+    findById 메서드는 PK로 데이터베이스를 찾는 메서드. 데이터를 고유키로 조회
+    => JpaRepository 가 상속 받는 CrudRepository에 정의되어있다.
+
+    대부분의 웹 프로그래밍은 객체를 조회할 때 조건이 대부분 id(FK)
+    RDBMS의 행을 고유하게 구분할 수 있는 값이 FK이기 때문에
+
+    많이 쓰는 기능이기 때문에  JPA에서 미리 준비해서 제공.
+
+    findById 메서드가 파라미터로받아들이는 타입은 JPA리포지터리에서 결정된다.
+    위에서 ㅂbookId가 Integer타입임을 정의하는 코드는 BookResitory
+
+    findById 메소드는 Optional<Book>객체를 반환
+    Optional 객체는 값이 null일수도 있는 객체로써
+    실제 값이 없더라도 null을 반환하는게 아니라
+    Optional변수.isPresent() == false 인 Optional객체를 반환하게 된다.
+    Optional을 사용하게 되면 꼭 필요할 때만 null 체크를 하면되는 장점이 있다.
+
+    public BookReadResponseDTO read(Integer bookId) throws NoSuchDlenentException
+    Optional 객체는 orElseThrow라는 메서드가 있고,
+    만약 내부 값이 null이라면 예외를 던지는 기능을 한다.
+    orElseThrow 메서드가 던지는 예외는 NoSuchDlenentException
+
+    return BookReadResponseDTO.BookFactory(book);
+    책 응답 DTO를 만들고 응답을 반환하는 BookFactory() 메서드의 결과를 리턴
+
+
+
+    도서 상세 뷰 작성
+    도서 오류 뷰 작성
+    도서 상세 화면 확인
+
+
+    도서 컨트롤러 클래스에 읽기 메소드 추가 :
+    BookController.java 에 책 정보를 읽기 위한 컨트롤러 코드를 추가
+
+    ~~~ read (@PathVariable Integer bookId) 메서드 리뷰
+    @GetMapping("/book/read/{bookId}")
+        책 상세화면의 경로를 지정
+        {bookId}는 bookId매개변수를 HTTP 주소를 통해 입력받는다는 뜻,
+
+        public ModelAndView read(@PathVariable Integer bookId)
+            @GetMapping 에 정의된 경로 매개변수는 컨트롤러 메서드의 파라미터로 정의한다.
+            이 코드에 의해 /book/read/3 주소로서버에 요청이 들어올 경우.
+            스프링 부트는 bookController.read(3)메서드를 실행시켜준다.
+
+            read메서드가 반환하는 ModelAndView 타입은
+            org.springframework.web.servlet.ModelAndView 네임스페이스에 정의되어있으며
+            스프링에서 데이터(Model)과 화면(View)을 함께 담을 수 있는 객체이다.
+
+            스프링은 ModelAndView가 리턴되면 Model의 정보를 View에 전달한다.
+
+        read 메소드가 반환하는 ModeLAndView 타입은
+            org. springframework. web. servlet.ModeLAndView 네임스페이스에 정의되어 있으며 스프링에서 데이터(ModeL)과 (And) 화면(View)을 함께 담을 수 있는 객체이다.
+            스프링은 ModeLAndView 가 리턴되면 Model의 정보를 View 에 전달한다.
+
+            서비스 클래스에서 책 정보를 찾을 수 없을 때, NoSuchElementException 을 던지므로 try - catch 로 예외처리.
+
+            이런 예외처리 코드는 전체 컨트롤러에 반복되므로
+            eControllerAdvice 를 통해 공통 영역으로 분리하여 구현하는 것이 일반적이지만,
+            지금은 너무 복잡해지는 것을 막기 위해 직접 메소드 안에 구현! !!
+            ==> public BookReadResponseDTO read(Integer bookId) throws NoSuchElementException { ~~}
+
+            ==> try{}catch{ } 가 필요한 이유!!
+            ==> Bookservice.java 내에 선언된 메서드를 BookControlter.java 의 read() 메서드 내에서 호출하기 때문!!
+            ==> public BookReadResponseDTO read(Integer bookId) throws NoSuchElementException { ~~ }
+
+
+        try{~~}
+            BookReadResponseDT0 bookReadResponseDTO = this.bookService.read(bookId);
+            책 정보가 없다면 NoSuchElementException 예외가 발생하므로
+            위의 코드는 실행되지않는다.
+            바꿔 말하면 mav.addObject("bookReadResponseDTo" ~~~ 코드가 실행된다는 것은
+            책 정보를 잘 읽었다는 보장을 해 준다는 의미!!
+
+        mav.addObject ("bookReadResponseDTO", bookReadResponseDTO);
+            ModelAndView 의 addObject 메소드를 통해 뷰에 전달할 데이터를 설정.
+            첫 번째 매개변수는 "뷰에서 사용할 이름", 두번째 매개변수는 "뷰에서 사용할 값"
+
+        mav.setViewName("book/read");
+            ModeLAndView 의 setViewName 메소드를 통해 뷰의 경로를 지정.
+
+            @GetMapping ("/book/read/{bookId}")
+            반드시는 아니지만 협업 할 때,
+            다른 사람들이 코드를 알아보기 쉽게 하기 위해 뷰의 경로는 리소스 요청 경로와 맞추는 경우가 대부분!!
+
+    catch{~~~}
+        만약 책 정보를 찾을 수 없다면 책 상세 화면을 보여주는 대신 오류 응답을 보여주고 목록 페이지로 이동
+        mav.setStatus(HttpStatus.UNPROCESSAVLE_ENTITY);
+        응답에 http상태 코드를 설정
+        파라미터가 틀렸을 경우
+        400오류(Bad Request - 잘못된 요청) 를 보여줄지 아니며
+        422오류 (Unprocessable Entity- 서버가 요청을 이해하고 요청 문법도 올바르지만, 요청된 지시를 따를 수 없음 )
+        오류를 보여줘야할 지에 대해서는 선택
+        조금 더 명확하게 이 메시지를 보여주기 위해 422(HttpStatusUNPROCESSAVLE_ENTITY);를 설정
+
+        HTTP 응답 상태는 결과에 따라 숫자와 메시지가 정해져 있다.
+        대표적으로 200(0K), 400(Bad Request), 404(Page Not Found) 등..
+
+        참고 URL: https://developer.mozilla.org/ko/docs/Web/HTTP/Status
+
+        mav. addobject("message”, "책 정보가 없습니다.");
+        mav.addobject("location", "/book");
+          뷰에 보낼 메시지와, 메시지를 보여주고 나서 이동할 경로를 설정
+
+        mav. setViewName ("common/error / 422");
+         책 정보를 찾을 수 없을 경우 book/read 경로가 아니라
+            오류 경로의 뷰를 사용해서 오류 메시지를 표시!!!
+
+        return mav;
+            read 메소드는 책 정보를 읽을 수 있느냐 없느냐에 따라서
+            각각 데이터와 뷰가 달라지므로 결과에 따라 설정한 값을 리턴!!!
+
+
+      alert(message);
+      location.href = loc; // 경고창을 만나면 그 하위 메서드는 실행이 안되다가 ok를 누르면 book이라는 요청주소로 감.
+
+      /book 목록볼때 사용할 url
+      read.html
+
+              <span th:text="${bookReadResponseDTO.title}"></span> title에 대한 getter를 호출하는 것임,
+              <span th:text="${#numbers.formatInteger(bookReadResponseDTO.price, 3,'COMMA')}"></span> 1000마다 끊어서 출력
+                    <a th:href="${/book/edit/{id}(id=${bookReadResponseDTO.bookId})}" th:text="수정"></a>
+                    pathvaliable사용하기 위해서 필요
+                    hidden 사용자에게 안보이게처리
+                        <a th:href="@{/book/list}" th:text="목록으로"></a>
+                    </p> getMapping
+
+     도서 오류 뷰 작성
+        타임리프에서 스크립트(<script></script>영역은 CDATA로 감싸야 한다.
+        /*<![CDATA[*/ 로 시작하고 /*]]*/.
+
+        /*<!CDATA[*/
+        ~~~
+        /*]]>*/
+
+        var message = /*[[${message}]]*/
+            타임리프에서 스크립트 영역의 프로퍼티를 나타낼 때는 /*[[${키 이름}]]*/ 형식으로
+            html에서는 ${키이름} 형식으로 나타낸 것과 다르므로 유의
+
+        var message = /*[[${message}]]*/ 'message';
+            타임리프의 스크립트 표현식 오른쪽에 붙은 표현은 "정적 메서드로 표현되었을 때 대체 문자열"!!!
+
+
+

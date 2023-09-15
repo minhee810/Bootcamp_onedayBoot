@@ -1,0 +1,187 @@
+6. 도서 입력 기능
+    도서 입력 기능 개요
+        생성화면 /create 에서 제목, 가격을 입력하고
+        저장 버튼을 클릭하면 서버가 해야하는 일 기술.
+
+        서버가 해야하는 일 :DB에 저장 (JPA:Entity)
+
+    도서 엔티티 클래스 : entity.Book => 클래스 생성시 앞에 패키지 명 작성하면 패키지가 자동으로 생성됨.
+        스프링 부트에서 JPA로 데이터를 다루기 위해 가장 먼저 해야할 일은
+        엔티티 클래스를 만드는 것.
+        엔티티 클래스는 데이터 베이스 테이블과 1:1로 매핑되는 자바 클래스
+        com.springboot.book.entity > Book.java
+
+        // title 필드 최대 크기값 주기 위해서 길이 명시
+        // int 혹은 원형 클래스명(Integer)을 써도 됨.
+        // DB와 호환을 잘 되게 하기 위해서는 원형 클래스 쓰는 것이 좋음.
+        private Integer price;
+        // @CreationTimestamp : 데이터가 삽입 될때 자동으로 시간이 들어가도록 붙임
+
+    도서 리포지터리 인터페이스
+        JPA에서는 데이터베이스와 연동하는 방법 중 하나로 리포지토리 인터페이스를 주로 사용
+        = > JPARepository
+
+        com.springboot.book.entity > BookRepository.java
+        레포지토리를 entity 패키지에 넣는 이유
+        entity객체와 repository 는 데이터베이스에 접근하는 객체이기 떄문
+        경우에 따라서는 entity 패키지 대신 repository 패키지를 따로 만드는 경우도 있다.
+
+        JpaRepository<T, ID>
+        JpaRepository는 Generic Type 2개가 필요한데 미지정했을 경우, 문법 오류
+        첫번째 인수 T는 엔티티 타입을, 두번째 인수 ID는 엔티티의 PK타입이다.
+        따라서, <T, ID> 부분을 <Book, Integer>로 지정
+
+    도서 입력 DTO
+        DTO는 값을 담는 컨테이너 객체.
+        책 입력 화면에서 제목과 가격을 입력했을 때
+        클라이언트가 서버로 전달한 값들을 담는 역할을 담당.
+        프로젝트에서 DTO는 클라이언트의 HTTP파라미터를 담는 컨테이너 객체로 사용.
+
+        com.springboot.book.dto > BookCreateDTO.java
+
+        DTO 객체는 엔티티 객체의 일부만 가지는 객체인 것 같은데,
+        따로 객체를 만드는 이유는 서로 용도가 다르기 떄문,
+
+        책관리 프로그램은 예제의단순성을 위해서 일부러 테이블 하나만 가지고 실습하지만.
+        실무에서 웹 화면은 데이터 베이스 테이블 하나만 대상으로 하는 경우가 거의 없다.
+        다양한 데이터 베이스 테이블의 데이터를 한번에 입력으로 받아서 서버에 처리하는 경우가 다수.
+
+        그런 경우 하나의 엔티티로 처리할 수 없고
+        또한 DTO 객체를 따로 만들어두면
+        나중에 DB는 그대로이지만 UI가 변경되는 경우 대처하기 쉽다.
+
+@NonNull : 입력값이 없을 경우 예외발생 / 꼭 입력을 받아야 하는 필드
+
+    도서 입력 서비스 클래스
+        서비스 클래스는 "실제 비즈니스 로직 흐름이 실행되는 곳"
+        즉 HTTP계층과 무관하게 여러 엔티티 혹은 다른 서비스 레이어를이용해서 원하는 결과를 얻어내는 레이어.
+
+        com.springboot.book.service > BookService.java
+
+    컨트롤러에 서비스 객체 추가
+            데이터 베이스와 통신하기 위한 객체 BookRepository를 선언
+            -> 클래스 안에 다른 클래스의 인스턴스를 가지고 있는 것을 "합성(Composition)"이라고 한다
+
+            의존성 주입을 통해 객체를 생성하게 되면 사용해야할 객체 선언만 해주면
+            프레임워크가
+            알아서 객체를 생성하고 주입해서 사용할 수 있게 해주는 편리함을 제공
+            클래스와 합성된 객체가 느슨한 결합을 하게 됨으로써
+            합성된 객체가 변해야 할때 쉽게 바꿀 수 있는 장점을 제공
+
+    도서 입력 컨트롤러 메소드 추가
+
+        책 데이터를 저장하기 위해 책 생성 시 필요한 객체 BookCreateDTO를 매개변수로 받는 메소드.
+        데이터베이스 행에 해당하는 데이터를 담을 엔티티 객체를 생성
+
+        메서드 파라미터로 입력받은 DTO 객체와 데이터 베이스 연동에 사용될 엔티티 객체는
+        멤버변수(일부)의 이름이 같을 뿐인 서로 다른 객체이므로
+        DTO 객체를 엔티티 객체로 변환해줘야 한다.
+        객체 빌더는 엔티티 객체에서 붙여줫던 롬복의 @Builder 어노테이션이 자동으로 만들어준다.
+
+        Book book = Book.builder() // bookBuilder 객체 생성
+        .title(bookCreateDTO.getTitle())    // 데이터 세팅
+        .price(bookCreateDTO.getPrice())    // 데이터 세팅
+        .build(); // book 객체 생성
+
+        엔티티 객체를 만들었다면 이제 정말 데이터베이스에 저장할 차례
+        => this.bookRepository.save(book)
+
+        bookRepository는 JpaRepository를 상속한 인터페이스이고,
+        sav메서드는 JpaRepository에 정의되어있다.
+
+        bookRepository는 인터페이스인데 데이터 저장 코드는 어디에서?
+
+        JPA는 JPARepository
+        (정확히 말하면 org.springframework.data.repository.Repository) 타입의 객체가
+        (DI에 의해) 인스턴스화 되는 순간
+
+        JdkDynamicAopProxy에 의해서
+        프록시 객체 org.springframework.data.repository.support.SimpleJpaRepository를 만들어낸다.
+        즉, 우리는 인터페이스만 정의하지만
+        JPA는 내부적으로 프록시 클래스를 생성하고 프록시 클래스를 통해 인스턴스를 생성해준다.
+
+        저장이 성공하면 book객체는 데이터 베이스에 실제로 저장된 값이 담긴다.
+        => this,bookRepository.save(book);
+        따라서 코드가 실행되기 전의 book 객체는  title, price 두개의 속성만 가지고 있지만
+        저장이 완료되고 나면 bookId, insertDateTime 속성도 가진다.
+
+        일반적으로 생성 화면은 생성이 성공하면 바로 보기 화면으로 전환하므로,
+        PK를 반환해서 보기 화면으로 이동할 수 있게 한다.
+        => return book.getBookId();
+
+        참고 :
+        스프링 MVC에서는 서비스 클래스를 직접 인스턴스화 하지 않고,
+        인터페이스를 통해 느슨하게 엮는 방법을 자주 사용한다.
+
+        하지만 스프링 부트에서는 서비스 인터페이스와 서비스 클래스가 1:1 관계인 경우
+        인터페이스를 만들지 않고 직접 클래스를 만드는 경우가 많다.
+
+        서비스 클래스를 직접 사용하든 인터페이스를 통해 느슨하게 결합하든 어느쪽을 선택해도 무관
+
+    도서입력 컨트롤러 메소드 추가
+        @PostMapping("/book/create") <==은 http요청 메서드 중 POST 메소드로 요청될때만
+        POST 메소드는 데이터를 생성할때 사용하는 메서드
+        다만 웹 브라우저에서는 GET과 POST 밖에 사용하지 않기 떄문에
+        POST로 데이터 변경에 필요한 액션들(생성,수정,삭제)을 할 때 사용된다.
+
+        @PostMapping 어노테이션에는 매개변수로 경로를 지정
+        그러므로 @PostMapping("/book/create") 어노테이션은
+        클라이언트에서 POST 메소드로 /book/create 주소를 요청할 경우.
+        BookController.java 파일의 insert 메서드가 실행된다는 의미.
+
+        insert 메서드의 파라미터는 BookCreateDTO 타입
+
+        스프링 부트는 컨트롤러 메서드에 클래스 타입 파라미터가 있을 경우,
+        자동으로 HTTP 파라미터를 읽어서 클래스 타입 파라미터의 인스턴스로 바꾼다.
+
+        예 ) HTTP 파라미터가 title = spring-boot&price=300이었다고 가정
+            스프링은 컨트롤러 메소드에 BookCreateDTO 타입이 정의되어 있으므로
+            bookCreateDTO 인스턴스를 만들고
+            멤버변수 title에는 "sprig-boot"를.
+            price 에는 300을 자바 빈즈 규칙에 따라 값을 세팅한 후,
+            컨트롤러 메소드 insert를 실행시킨다.
+
+        요청을 HTTP규격으로 나타내보면
+        POST/book/create
+        title = spring%price=300
+
+        대부분의 스플링 부트 프로젝트의 컨트롤러 메서드는 파라미터를 입력받아서 서비스로 전달하는 역할만 담당.
+        실무에서는 세션, 컨텍스트 등 다양한 http 계층의 정보를 모아서 합친 뒤 서비승에 전달하는 것이 컨트롤러 메서드가 하는 일!!!
+
+        JPA가 동작하고 나면 실제로 실행된 쿼리
+        Hibernate:
+            insert
+            into
+                book
+                (book_id, insert_date_time, price, title)
+            values
+                (null, ?, ?, ?)
+
+        insert 쿼리는 데이터를 입력하는 쿼리로 아래 형식으로 사용
+        => insert into 테이블 이름(키1, 키2) values (키1값, 키2값)
+
+        bookService.insert 메서드가 Integer 타입을 리텅하므로
+        bookId 변수에는 방금 생성한 책 정보의 PK가 담긴다.
+
+        => return String.format("redirect:/book/read/%s", bookId);
+        자바에서 String.format 은 문자열을 포매팅하는 역할.
+        %s는 문자열이 담긴 위치를 나타낸다.
+
+        예) bookId가 3이라고 가정한다면, 위 코드는 ""redirect:/book/read/3"을 반환
+
+        String.format은 문자열의 전체적인 구조를 보기 쉽게 만들고.
+        타입이 문자열이 아닌 객체는 자동으로 toString()메서드를 호출해서
+        문자열로 만들어서 넣어주므로 깔끔한 코드를 작성할 떄 만ㅎ이 사용 .
+
+        스프링에서 컨트롤러가 가리키는 뷰 경로가 redirect:로 시작하면 페이지를 전환하라는 의미
+
+        따라서 "redirect:/book/read/3"코드는
+        클라이언트에서 HTTP STATUS CODE 302 (임시로 리소스 이동) 와 함께 주소(Location) /book/read/3을 을답.
+
+        클라이언트 브라우저는
+        상태코드 302, Location :/book/read/3을 스프링 부트 서버에게 응답 받아서
+        페이지를 localhost:8090/book/read/3으로 이동하게 된다.
+
+    도서 입력 기능 확인
+
+    패키지 정리

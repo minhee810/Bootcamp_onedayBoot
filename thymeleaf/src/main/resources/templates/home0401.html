@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Home</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+<!--<h1>
+   th:href 속성에 링크 URL 표현식을 사용하여 URL값을 지정한다.
+</h1>
+<div>
+    <a th:href="@{/sub/home0402}">Home0402로 이동</a>
+
+</div>-->
+
+<h1>지역변수를 선언한 후, 자바 빈즈 프로퍼티 값을 그 지역 변수에 대입하여 사용</h1>
+<table th:with="memberId=${member.userId}">
+    <tr>
+        <td>${member.userId}</td>
+        <td th:text="${memberId}">member.userId</td>
+    </tr>
+</table>
+</body>
+</html>
